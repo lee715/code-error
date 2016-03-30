@@ -1,7 +1,7 @@
 {
   "name": "code-error",
-  "version": "0.1.1",
-  "description": "node error with code",
+  "version": "0.1.2",
+  "description": "define node error with code",
   "main": "./index.js",
   "scripts": {
     "test": "NODE_ENV=mocha mocha"
