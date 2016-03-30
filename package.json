@@ -1,0 +1,26 @@
+{
+  "name": "code-error",
+  "version": "0.0.1",
+  "description": "node error with code",
+  "main": "./index.js",
+  "scripts": {
+    "test": "NODE_ENV=mocha mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lee715/code-error.git"
+  },
+  "keywords": [
+    "error,code"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lee715/code-error/issues"
+  },
+  "homepage": "https://github.com/lee715/code-error",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "mocha": "~2.3.4"
+  }
+}
