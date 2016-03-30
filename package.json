@@ -1,5 +1,5 @@
 {
-  "name": "code-error",
+  "name": "node-code-error",
   "version": "0.1.2",
   "description": "define node error with code",
   "main": "./index.js",

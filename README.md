@@ -1,4 +1,4 @@
-code-error
+node-code-error
 ===
 define errror with code
 
@@ -8,13 +8,13 @@ define errror with code
 ## Installation
 
 ```bash
-npm install code-error
+npm install node-code-error
 ```
 
 ## Demo
 ```js
 // extend a new type of error
-var CodeError = require('code-error')
+var CodeError = require('node-code-error')
 CodeError.extend('api', 400, 100)
 var err = CodeError('api', 'db is not defined', 32)
 err.status // 400
@@ -62,7 +62,7 @@ err.toJSON()
 - factory function for getting an error constructor or creating an instance
 
 ```js
-var CodeError = require('code-error')
+var CodeError = require('node-code-error')
 CodeError.extend('api', 400, 100)
 CodeError('api') // => function ApiError
 CodeError('api', 'api error', 32, new Error('xxx')) // => instance of ApiError
@@ -76,7 +76,7 @@ CodeError('api', 'api error', 32, new Error('xxx')) // => instance of ApiError
 - `customCode` *Option*, `Number`, if passed, the last part of code will be always the customCode, this is used for errors with stationary code, like SystemError
 
 ```js
-var CodeError = require('code-error')
+var CodeError = require('node-code-error')
 CodeError.extend('api', 400, 100)
 CodeError('api', 'api error', 43) // code == 10043
 CodeError.extend('system', 500, 101, 10)
@@ -88,7 +88,7 @@ CodeError('system', 'system error', 43) // code == 10110
 - maps `Array` map of values for keywords.for common use, you can use maps[0] as map of model, use maps[1] as map of action.then, your error message will like 'user invalid', 'password unmatch', etc.
 
 ```js
-var CodeError = require('code-error')
+var CodeError = require('node-code-error')
 CodeError.configure({
   maps: [{
     user: 1,
