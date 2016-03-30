@@ -54,6 +54,7 @@ err.toJSON()
     type: 'ApiError'
   }
 */
+```
 
 ## API
 
@@ -65,6 +66,7 @@ var CodeError = require('code-error')
 CodeError.extend('api', 400, 100)
 CodeError('api') // => function ApiError
 CodeError('api', 'api error', 32, new Error('xxx')) // => instance of ApiError
+```
 
 ### CodeError.extend(name, status, baseCode, customCode)
 
@@ -79,6 +81,7 @@ CodeError.extend('api', 400, 100)
 CodeError('api', 'api error', 43) // code == 10043
 CodeError.extend('system', 500, 101, 10)
 CodeError('system', 'system error', 43) // code == 10110
+```
 
 ### CodeError.configure(opts)
 - global config.only used for transfering message to code right now.
@@ -104,6 +107,7 @@ var err = CodeError('api', 'use missed')
 err.code // => 10011
 var err = CodeError('api', 'book unmatch')
 err.code // => 10023
+```
 
 ### CodeError.wrap(err, name)
 - err *Required* `Error` the error to be wrapped
@@ -122,3 +126,4 @@ wrapped.toJSON()
     type: "SystemError"
   }
 */
+```
