@@ -84,4 +84,10 @@ module.exports = function (type, msg, code, orignalError) {
     return new Err(msg, code, orignalError)
   }
 }
-module.exports.Errors = Errors
+
+var apis = ['extend', 'wrap', 'configure']
+apis.forEach(function (name) {
+  module.exports[name] = function () {
+    Errors[name].apply(Errors, arguments)
+  }
+})
