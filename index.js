@@ -23,7 +23,7 @@ Errors.extend = function (name, status, baseCode, customCode) {
   if (existed) return existed
   util.extend(Ctor, CodeError)
   function Ctor (msg, code, orignalError) {
-    if (Errors._useMsgCode) {
+    if (Errors._useMsgCode && !util.isNumberLike(code)) {
       orignalError = code
       code = Errors.ensureCode(msg)
     }
@@ -50,8 +50,8 @@ Errors.str2code = function (str) {
   var maps = this._name2codeMaps
   var code = ''
   arr.forEach(function (item, ind) {
-    var codePart = maps[ind][item] || 0
-    code += codePart
+    var codePart = maps[ind][item]
+    if (codePart !== undefined) code += codePart
   })
   return +code
 }

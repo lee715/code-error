@@ -4,13 +4,6 @@ var assert = require('assert')
 var CodeError = require('../index')
 var Errors = CodeError.Errors
 
-// Errors.extend('system', 500, 100, 0)
-// Errors.extend('internal', 500, 101, 0)
-// Errors.extend('param', 400, 103, 0)
-// Errors.extend('api', 400, 104)
-// Errors.extend('jwt', 400, 105)
-// Errors.extend('oauth2', 400, 106)
-
 it('extend', function () {
   Errors.extend('internal', 500, 101, 0)
   var err = CodeError('internal', 'this is a internal error with default code')
