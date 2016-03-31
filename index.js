@@ -4,22 +4,21 @@ var util = require('./util')
 
 var Errors = {
   _eMap: {},
-  _eCodeMap: {},
   _name2codeMaps: [],
   _split: ' '
 }
 
 Errors.get = function (name) {
-  if (!name || !(typeof name === 'string')) return null
-  name = name.toLowerCase()
-  return this._eMap[name] || this._eCodeMap[name]
+  if (!name || !util.isString(name) && !util.isNumber(name)) return null
+  name = ('' + name).toLowerCase()
+  return this._eMap[name]
 }
 
 Errors.extend = function (name, status, baseCode, customCode, message) {
   if (!name || !util.isNumberLike(baseCode)) {
     return null
   }
-  var existed = this.get(name) || this.get(baseCode)
+  var existed = this.get(name)
   if (existed) return existed
   util.extend(Ctor, CodeError)
   function Ctor (msg, code, orignalError) {
@@ -35,7 +34,6 @@ Errors.extend = function (name, status, baseCode, customCode, message) {
     if (message !== undefined) this.message = message
   }
   this._eMap[name] = Ctor
-  this._eCodeMap[baseCode] = Ctor
   return Ctor
 }
 
@@ -95,7 +93,7 @@ module.exports = function (type, msg, code, orignalError) {
 var apis = ['extend', 'wrap', 'configure']
 apis.forEach(function (name) {
   module.exports[name] = function () {
-    Errors[name].apply(Errors, arguments)
+    return Errors[name].apply(Errors, arguments)
   }
 })
 
