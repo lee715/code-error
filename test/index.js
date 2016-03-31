@@ -2,15 +2,24 @@
 /*global it*/
 var assert = require('assert')
 var CodeError = require('../index')
-var Errors = CodeError.Errors
+var webHttpStatus = require('../httpStatusCode.json')
+
+it('httpStatus', function () {
+  Object.keys(webHttpStatus).forEach(function (key) {
+    var err = CodeError(key)
+    assert(err.toJSON().code)
+    assert(err.toString())
+    assert(err.status === +key)
+  })
+})
 
 it('extend', function () {
-  Errors.extend('internal', 500, 101, 0)
+  CodeError.extend('internal', 500, 101, 0)
   var err = CodeError('internal', 'this is a internal error with default code')
   assert(err.code === 1010)
   assert(err.toString() === 'InternalError: this is a internal error with default code')
   assert(err.toJSON().type === 'InternalError')
-  Errors.extend('api', 400, 104)
+  CodeError.extend('api', 400, 104)
   err = CodeError('api', 'this is a internal error without default code', 62)
   assert(err.code === 10462)
   assert(err.toString() === 'ApiError: this is a internal error without default code')
@@ -19,7 +28,7 @@ it('extend', function () {
 
 it('configure', function () {
   // use keywords to define code
-  Errors.configure({
+  CodeError.configure({
     maps: [{
       user: 1,
       alien: 2,
@@ -35,7 +44,7 @@ it('configure', function () {
   assert(err.toString() === 'ApiError: invalid user in xx api')
   assert(err.toJSON().type === 'ApiError')
   // use msg for code
-  Errors.configure({
+  CodeError.configure({
     useMsgForCode: true
   })
   err = CodeError('api', 'user invalid')
@@ -43,7 +52,7 @@ it('configure', function () {
   assert(err.toString() === 'ApiError: user invalid')
   assert(err.toJSON().type === 'ApiError')
   // config split letter
-  Errors.configure({
+  CodeError.configure({
     splitLetter: ',',
     useMsgForCode: false
   })

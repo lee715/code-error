@@ -15,7 +15,7 @@ Errors.get = function (name) {
   return this._eMap[name] || this._eCodeMap[name]
 }
 
-Errors.extend = function (name, status, baseCode, customCode) {
+Errors.extend = function (name, status, baseCode, customCode, message) {
   if (!name || !util.isNumberLike(baseCode)) {
     return null
   }
@@ -32,6 +32,7 @@ Errors.extend = function (name, status, baseCode, customCode) {
     this._baseCode = baseCode
     this.status = this.statusCode = status || 500
     if (customCode !== undefined) this._customCode = customCode
+    if (message !== undefined) this.message = message
   }
   this._eMap[name] = Ctor
   this._eCodeMap[baseCode] = Ctor
@@ -78,7 +79,11 @@ module.exports = function (type, msg, code, orignalError) {
   var Err = Errors.get(type)
   if (!Err) return null
   if (arguments.length === 1) {
-    return Err
+    if (util.isNumberLike(type)) {
+      return new Err()
+    } else {
+      return Err
+    }
   } else {
     code = Errors.ensureCode(code)
     return new Err(msg, code, orignalError)
@@ -90,4 +95,9 @@ apis.forEach(function (name) {
   module.exports[name] = function () {
     Errors[name].apply(Errors, arguments)
   }
+})
+
+var statusCodeMap = require('./httpStatusCode.json')
+Object.keys(statusCodeMap).sort().forEach(function (key, ind) {
+  Errors.extend(key, +key, 100, 10 + ind, statusCodeMap[key])
 })

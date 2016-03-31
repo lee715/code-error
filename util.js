@@ -18,6 +18,7 @@ util.extend = function (child, parent) {
 
 util.toErrorName = function (str) {
   assert(str && typeof str === 'string')
+  if (util.isNumberLike(str)) return 'Error'
   return str.charAt(0).toUpperCase() + str.slice(1) + 'Error'
 }
 
