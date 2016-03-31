@@ -67,7 +67,7 @@ Errors.ensureCode = function (code) {
 
 Errors.wrap = function (err, type) {
   if (!type) {
-    type = err.status || err.statusCode || err.code || 500
+    type = err.status || err.statusCode || 500
   }
   var Err = this.get(type)
   if (!Err) return null
