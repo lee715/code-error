@@ -49,9 +49,10 @@ Errors.str2code = function (str) {
   var maps = this._name2codeMaps
   var code = ''
   arr.forEach(function (item, ind) {
-    var codePart = maps[ind][item]
+    var codePart = maps[ind] && maps[ind][item]
     if (codePart !== undefined) code += codePart
   })
+  if (!code) return 0
   return +code
 }
 
