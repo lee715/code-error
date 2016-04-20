@@ -1,6 +1,6 @@
 {
   "name": "node-code-error",
-  "version": "0.1.36",
+  "version": "0.1.4",
   "description": "define node error with code",
   "main": "./index.js",
   "scripts": {
