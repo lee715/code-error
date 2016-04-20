@@ -107,5 +107,5 @@ apis.forEach(function (name) {
 
 var statusCodeMap = require('./httpStatusCode.json')
 Object.keys(statusCodeMap).sort().forEach(function (key, ind) {
-  Errors.extend(key, +key, 100, 10 + ind, statusCodeMap[key])
+  Errors.extend(key, +key, +key, '', statusCodeMap[key])
 })
