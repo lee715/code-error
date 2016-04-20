@@ -28,7 +28,10 @@ exports.__ = function (opts, data) {
     var keyStr = _keys.join('.')
     return {title: opts.status, message: keyStr}
   } else {
-    var title = i18n.__({phrase: 'title.' + keys.join('.'), locale: locale}, data) || opts.status
+    var title = i18n.__({phrase: 'title.' + keys.join('.'), locale: locale}, data)
+    if (title === 'title.' + keys.join('.')) {
+      title = opts.status
+    }
     return {title: title, message: body}
   }
 }

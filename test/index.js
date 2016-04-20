@@ -72,6 +72,7 @@ it('configure', function () {
   err = CodeError('api', 'invalid user in xx api', 11)
   var localeJson = err.toLocaleJSON({action: 'create', refer: 'github'})
   assert(localeJson.message === '创建Github账户失败')
+  assert(localeJson.title === 400)
   localeJson = err.toLocaleJSON({action: 'edit', refer: 'github'})
   assert(localeJson.message === '错误的请求')
 })
