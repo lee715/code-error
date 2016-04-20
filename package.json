@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/lee715/code-error",
   "dependencies": {
+    "i18n": "^0.8.1"
   },
   "devDependencies": {
     "mocha": "~2.3.4"

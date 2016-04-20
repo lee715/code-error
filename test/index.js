@@ -60,4 +60,18 @@ it('configure', function () {
   assert(err.code === 10411)
   assert(err.toString() === 'ApiError: invalid user in xx api')
   assert(err.toJSON().type === 'ApiError')
+  // config additionKeys
+  CodeError.configure({
+    additionKeys: ['action', 'refer'],
+    i18n: {
+      locales: ['en', 'zh'],
+      defaultLocale: 'zh',
+      directory: __dirname + '/../test_locales'
+    }
+  })
+  err = CodeError('api', 'invalid user in xx api', 11)
+  var localeJson = err.toLocaleJSON({action: 'create', refer: 'github'})
+  assert(localeJson.message === '创建Github账户失败')
+  localeJson = err.toLocaleJSON({action: 'edit', refer: 'github'})
+  assert(localeJson.message === '错误的请求')
 })

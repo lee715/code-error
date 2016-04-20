@@ -1,6 +1,7 @@
 'use strict'
 var CodeError = require('./error')
 var util = require('./util')
+var i18n = require('./i18n')
 
 var Errors = {
   _eMap: {},
@@ -41,6 +42,12 @@ Errors.configure = function (opts) {
   opts = opts || {}
   if (opts.maps) this._name2codeMaps = opts.maps
   if (opts.splitLetter) this._split = opts.splitLetter
+  if (opts.i18n || opts.additionKeys) {
+    i18n.configure({
+      i18n: opts.i18n,
+      additionKeys: opts.additionKeys
+    })
+  }
   this._useMsgCode = !!opts.useMsgForCode
 }
 
