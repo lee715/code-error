@@ -1,129 +1,251 @@
-node-code-error
-===
-define errror with code
+Introduction
+====================
+Validator Framework, write once and use anywhere.
 
-[![NPM version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-
-## Installation
-
+Install
+-------------------
 ```bash
-npm install node-code-error
+$ npm install vfw
 ```
 
 ## Demo
 ```js
-// extend a new type of error
-var CodeError = require('node-code-error')
-CodeError.extend('api', 400, 100)
-var err = CodeError('api', 'db is not defined', 32)
-err.status // 400
-err.toString() // 'ApiError: db is not defined'
-err.toJSON()
-/*
-  {
-    code: 10032,
-    message: 'ApiError: db is not defined',
-    type: 'ApiError'
-  }
-*/
+var vfw = require('vfw')
 
-// configure CodeError and describe code by keywords
-CodeError.configure({
-  maps: [{
-    user: 1,
-    book: 2,
-    cat: 3
-  }, {
-    missed: 1,
-    invalid: 2,
-    unmatched: 3
-  }],
-  splitLetter: ' ' // default is ' ',
-  useMsgForCode: true // default is false
+// check object
+var ruleSet = vfw.parse({
+  a: 'String:required',
+  b: 'Money'
 })
-// then you can create err like this
-err = CodeError('api', 'user invalid')
-err.status // 400
-err.toString() // 'ApiError: user invalid'
-err.toJSON()
-/*
-  {
-    code: 10012,
-    message: 'ApiError: user invalid',
-    type: 'ApiError'
+ruleSet.check({a: 'as', b: 99}) // => true
+ruleSet.check({a: 12, b: 'x.x'}) // => false
+
+// check array
+ruleSet = vfw.parse(['String', 'Moeny'])
+ruleSet.check(['as',99]) // => true
+ruleSet.check([123, 'x.x']) // => false
+
+// check multidimensional array
+ruleSet = vfw.parse({
+  $array: {
+    $array: 'String'
   }
-*/
+})
+ruleSet.check([['as'], ['ds']]) // => true
+
+// your can parse and check any js object
+ruleSet = vfw.parse({
+  a: {
+    b: 'String'
+    c: ['Method', 'Url']
+  }
+})
+ruleSet.check({a: {b: 'as', c: ['get', 'http://github.com']}})
+
+// with logic element, $and ,$or and $xor is supported, and your can extend more
+ruleSet = vfw.parse({
+  $or: {
+    a: 'String',
+    b: 'Moeny'
+  }
+})
+ruleSet.check({a: 'as'}) // => true
+ruleSet.check({a: 23, b: 12.2}) // => true
+
+// with expression
+ruleSet = vfw.parse({
+  a: {
+    $eq: 1
+  }
+})
+ruleSet.check({a: 1}) // => 1
+
+// use without parse api
+vfw.type('String', 'as') // => true
+var a = 1
+vfw.expression('eq', a, 1) // => true
+// $ is short for expression
+vfw.$('eq', a, 1) // => true
+
+// everything in vfw is extendable
+
+// extend your own type
+vfw.extend('type', {
+  Word: function (str) {
+    return /^\w+$/.test(str)
+  }
+})
+vfw.type('Word', 'azAZ_09') // => true
+ruleSet = vfw.parse({a: 'Word'})
+ruleSet.check({a: 'azAZ_09'}) // => true
+
+// extend your own expression
+vfw.extend('expression', {
+  $gt: function (str, len) {
+    return str && str.length > len
+  }
+})
+var b = [1, 2]
+vfw.$('gt', b, 1) // => true
+ruleSet = vfw.parse({a: {$gt: 2}})
+ruleSet.check({a: 'aas'}) // => true
+
+// extend your own struct
+vfw.extend('struct', 'User', {
+  name: 'Word:required',
+  // 类型 Word 长度 小于等于6
+  password: {
+    $type: 'Word',
+    $lte: 6
+  }
+})
+vfw.struct('User', {name: 'asd_123', password: 'asd_as'}) // => true
+vfw.struct('User', {name: 'asd_123', password: 'asd_as123'}) // => false
+vfw.struct('User', {password: 'ass123'}) // => false
+
 ```
+
+## CLASS
+
+### RuleType
+- type, expression, struct are all intanceof RuleType, and you can extend your own RuleType by extendRule api.
+* #### attributes
+    * _extended: `Object` store extended functions
+    * _includes: `Array` store included libs
+* #### methods
+    * canHandle(rule)
+        * `required` check if the rule can be handled by this ruleType
+    * check(arr, rule)
+        * you can rewrite this function and check in aother way
+        * the first arguments is Array
+    * extend(obj)
+        *  define how to extend
+    * include(lib)
+        * define how to include a lib
+    * get(key)
+        * get handler by key
+    * has(key)
+
+### Rule
+* #### attributes
+    * _name: `String` name of rule type
+    * _rule: rule object. for {a: 'String'}, _rule is 'String'
+    * _path: the path of the object. for {a: 'String'}, _path is 'a'
+    * _hdl: handler of this rule
+* #### methods
+    * check(target)
+        * check the target
+    * clone()
+        * clone this rule
+    * addPath(path, depth)
+        *  add a path to this rule.depth is default 0.
+    * setHandler(handler, rule)
+        * set _hdl and _rule
+    * finish()
+        * before add to struct, you should finish this rule first
+
+### Struct
+- collection of rules
+* #### attributes
+    * uid `String` uniq id of this struct
+    * _rules `Array` array of rules
+    * _ruleMap `Object` map of rules
+* #### methods
+    * add(rule) add a rule to this struct
+    * check(obj, opts) if opts.withErrors is true, check function will return [res, errs]
 
 ## API
 
-### CodeError(name, msg, code, originalError)
-- factory function for getting an error constructor or creating an instance
-
+### vfw.type(Type, target)
 ```js
-var CodeError = require('node-code-error')
-CodeError.extend('api', 400, 100)
-CodeError('api') // => function ApiError
-CodeError('api', 'api error', 32, new Error('xxx')) // => instance of ApiError
+vfw.type('String', 'asd') // => true
+vfw.type('Number', 'asd') // => false
 ```
 
-### CodeError.extend(name, status, baseCode, customCode)
-
-- `name` *Required*, `String`, define the type of the error
-- `status` `Number`, define the status of the error, default is 500
-- `baseCode` *Required*, `Number`, the first part of the code
-- `customCode` *Option*, `Number`, if passed, the last part of code will be always the customCode, this is used for errors with stationary code, like SystemError
-
+### vfw.expression or vfw.$
 ```js
-var CodeError = require('node-code-error')
-CodeError.extend('api', 400, 100)
-CodeError('api', 'api error', 43) // code == 10043
-CodeError.extend('system', 500, 101, 10)
-CodeError('system', 'system error', 43) // code == 10110
+vfw.$('in', [1, 2], 1) // => true
 ```
 
-### CodeError.configure(opts)
-- global config.only used for transfering message to code right now.
-- maps `Array` map of values for keywords.for common use, you can use maps[0] as map of model, use maps[1] as map of action.then, your error message will like 'user invalid', 'password unmatch', etc.
-
+### vfw.struct(StructName, target)
 ```js
-var CodeError = require('node-code-error')
-CodeError.configure({
-  maps: [{
-    user: 1,
-    book: 2,
-    cat: 3
-  }, {
-    missed: 1,
-    invalid: 2,
-    unmatch: 3
-  }],
-  splitLetter: ' ' // default is ' ',
-  useMsgForCode: true // default is false
+vfw.struct('User', {user: 'lee', password: '123456'})
+```
+
+### vfw.extendRule(opts)
+- extend your own RuleType. type, expression, struct are all instanceof RuleType.
+```js
+vfw.extendRule({
+  // canHandle function must be rewrited to tell vfw what it can handle
+  canHandle: function (obj) {
+    return /^@/.test(obj)
+  },
+  name: 'custom'
 })
-CodeError.extend('api', 400, 100)
-var err = CodeError('api', 'use missed')
-err.code // => 10011
-var err = CodeError('api', 'book unmatch')
-err.code // => 10023
+// if name supported
+vfw.custom('@as', 12)
+// and you can write rule like this
+vfw.parse({
+  a: '@string'
+})
 ```
 
-### CodeError.wrap(err, name)
-- err *Required* `Error` the error to be wrapped
-- name *Option* `String` which type of error to wrap, default is 'system'
-
+### vfw.extendParser(Function)
 ```js
-CodeError.extend('system', 500, 100, 10)
-var err = new Error("I'm a nodejs Error")
-var wrapped = CodeError.wrap(err, 'system')
-wrapped.toString() // => "SystemError: I'm a nodejs Error"
-wrapped.toJSON()
-/*
-  => {
-    code: 10010,
-    message: "SystemError: I'm a nodejs Error",
-    type: "SystemError"
-  }
-*/
+// extend a new RuleType, the rule '#xxx' will be handled by isXxx
+// for example, #string will be handled by isString
+vfw.extendParser(function (rule, struct, ruleIns) {
+  // if this function cant handle the rule, return false, and this rule will handled by others
+  if (!(typeof rule === 'string' && rule.charAt(0) === '#')) return false
+  rule = rule.slice(1)
+  rule = 'is' + rule.charAt(0).toUpperCase() + rule.slice(1)
+  var handler = vfw.get(rule)
+  if (!handler) return false
+  ruleIns.setHandler(handler, rule)
+  struct.add(ruleIns)
+  return true
+})
+var _ = require('lodash')
+vfw.include('type', _)
+// use _.isPlainObject
+var struct = vfw.parse({a: '#PlainObject'})
+struct.check({a: {a: 1}}) // => true
+```
+
+### vfw.extend(type, extends)
+- type `String` name of RuleType, like 'type', 'expression'
+- extends `Object` the functions you want to extend
+```js
+vfw.extend('type', {
+  Money: function(){},
+  Url: function(){}
+})
+vfw.extend('expression', {
+  $lt: function(target, len){},
+  $startWith: function(target, char){}
+})
+// once extended, those rules can be used anywhere
+```
+
+### vfw.include(type, obj)
+- type `String` name of RuleType, like 'type', 'expression'
+- obj `Object`
+- you can include a lib like lodash, validator or others and use the functions they supported
+```js
+var _ = require('lodash')
+vfw.include('type', _)
+// use _.isPlainObject
+var struct = vfw.parse({a: '#PlainObject'})
+struct.check({a: {a: 1}}) // => true
+```
+
+### vfw.parse(obj)
+- parse a rule object and return an instance of Struct
+```js
+var rule = {
+  a: 'String:required',
+  b: 'Money'
+}
+var struct = vfw.parse(rule)
+struct.check({a: 'as', b: 1.2}) // => true
 ```
