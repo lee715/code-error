@@ -26,10 +26,11 @@ module.exports = function (type, msg) {
     var arr = msg.split(CONFIG.splitLetter)
     var objCode = CONFIG.get('object', arr[0])
     var actCode = CONFIG.get('action', arr[1])
-    if (!isCode(objCode)) throw new Error('unrecognized error object')
-    if (!isCode(actCode)) throw new Error('unrecognized error action')
-    codeObj.objectCode = objCode
-    codeObj.actionCode = actCode
+    if (isCode(objCode) && isCode(actCode)) {
+      codeObj.objectCode = objCode
+      codeObj.actionCode = actCode
+    }
+
   }
   codeObj.type = type
   return new CodeError(codeObj, msg)
@@ -58,8 +59,8 @@ module.exports.extend = function (name, status, typeCode, objectCode, actionCode
     status: status,
     typeCode: typeCode
   }
-  if (objectCode !== undefined) codeObj.objectCode = objectCode
-  if (objectCode !== undefined) codeObj.actionCode = actionCode
+  codeObj.objectCode = objectCode || 0
+  codeObj.actionCode = actionCode || 0
   CONFIG.typeMap[name] = codeObj
 }
 

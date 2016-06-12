@@ -45,8 +45,8 @@ CodeError.prototype.toLocaleJSON = function (opts, data) {
 }
 
 function buildCode (opts) {
-  opts.actionCode = opts.actionCode || ''
-  opts.objectCode = opts.objectCode || ''
+  opts.actionCode = opts.actionCode === 0 ? 0 : opts.actionCode || ''
+  opts.objectCode = opts.objectCode === 0 ? 0 : opts.objectCode || ''
   return +('' + opts.typeCode + opts.objectCode + opts.actionCode)
 }
 
